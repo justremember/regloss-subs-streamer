@@ -1,0 +1,52 @@
+html {
+  min-height: 100%;
+}
+
+body {
+  font-family: sans-serif;
+  background: linear-gradient(to top, rgb(83, 81, 112), rgb(38, 48, 53));
+  color: white;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
+}
+
+.card {
+  padding: 10px;
+  width: 300px;
+}
+
+.channel-image-container {
+  display: flex;
+  justify-content: center;
+}
+
+.channel-name {
+  text-align: center;
+  margin: 5px 0;
+  font-size: 30px;
+}
+
+.sub-count {
+  text-align: center;
+  margin: 5px 0;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.total-subs-container {
+  display: flex;
+  justify-content: center;
+}
+
+.total-subs-label {
+  font-size: 30px;
+}
+
+.total-subs {
+  font-size: 30px;
+  font-weight: bold;
+}
