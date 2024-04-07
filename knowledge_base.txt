@@ -1,0 +1,33 @@
+# SSH config
+Host <ALIAS>
+    Hostname <IP_ADDRESS>
+    ServerAliveInterval 60
+    ServerAliveCountMax 10
+
+# Connect to server through ssh
+ssh root@<IP_ADDRESS>
+
+# Connect to server with local port tunneling
+# (being able to access webserver on port 3000 running on remote machine)
+ssh -L 3000:127.0.0.1:3000 root@<IP_ADDRESS>
+
+# Copy file from local to remote
+scp ~/LOCAL/FILE/PATH.txt root@<IP_ADDRESS>:~/REMOTE/DIR/PATH
+
+# Copy file from remote to local
+scp root@<IP_ADDRESS>:~/REMOTE/FILE/PATH.txt ~/LOCAL/DIR/PATH
+
+# Create screen
+screen -S <SESSION_NAME>
+
+# List screens
+screen -ls
+
+# Enter screen
+screen -r <SCREEN_ID>
+
+# Build node server
+npm run build
+
+# Start node server
+npm run start
