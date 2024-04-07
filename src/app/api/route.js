@@ -36,12 +36,17 @@ export async function POST(req, res) {
         });
     }
     const rowsToAdd = await req.json();
-    rowsToAdd.forEach(async (row) => {
-        // Extract the name & subcount from the request body
-        const { name, subCount } = row;
-        // Insert the new task into the "subs" table
-        await db.run("INSERT INTO subs (name, subcount) VALUES (?, ?)", [name, subCount]);
-    })
+    // Define timestamp outside of map for consistency between entries
+    const timestamp = (new Date()).toISOString().replace("T", " ").slice(0, 19);
+
+    const valuesString = rowsToAdd.map(({ name, subCount }) => {
+        return `('${name}', ${subCount}, '${timestamp}')`
+    }).join(", ");
+
+    console.log({ valuesString });
+
+    // Insert the new rows into the "subs" table
+    await db.run(`INSERT INTO subs (name, subcount, timestamp) VALUES ${valuesString}`);
 
     // Return a success message as a JSON response with a 200 status code
     return new Response(
