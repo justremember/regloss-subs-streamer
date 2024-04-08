@@ -3,7 +3,7 @@
     TODO:
     - [DONE] Create POST request for sqlite api (auto datetime timestamp)
     - [DONE] POST to sqlite after youtube api query (hourly)
-    - Clean up redundant data in query (not hourly data)
+    - [DONE] Clean up redundant data in query (not hourly data)
     - [DONE] add "set_id" column (but maybe not, just rely on timestamp and add 5 rows at the same time manually setting timestamp)
     - Search how to plot time series data d3.js
     - Plot the GET data from db along w/ new data
