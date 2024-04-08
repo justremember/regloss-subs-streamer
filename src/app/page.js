@@ -1,7 +1,11 @@
-import Display from "./Display";
+import dynamic from "next/dynamic";
+
+const DisplayNoSSR = dynamic(() => import("./Display"), {
+    ssr: false,
+});
 
 export default async function Home() {
     return (
-        <Display />
+        <DisplayNoSSR />
     )
 }
