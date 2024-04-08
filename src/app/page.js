@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const DisplayNoSSR = dynamic(() => import("./Display"), {
+const DisplayNoSSR = dynamic(() => import("@/app/components/Display"), {
     ssr: false,
 });
 

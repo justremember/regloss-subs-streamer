@@ -27,6 +27,7 @@
 'use client'
 
 import { useEffect, useState } from "react";
+import LineChart from "@/app/components/LineChart"
 
 const REGLOSS = {
     members: [
@@ -184,6 +185,8 @@ export default function Display() {
                 <span className="total-subs-label">Total 合計</span>
                 <span className="total-subs">{`　${numberWithCommas(totalSubs)}/${numberWithCommas(subsGoal)}（${Math.floor(totalSubs/subsGoal * 100)}％）`}</span>
             </div>
+
+            <LineChart data={currentData + pastData} />
         </div>
     );
 }
