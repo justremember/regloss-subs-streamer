@@ -7,6 +7,7 @@ let db = null;
 
 // Handler for GET requests to retrieve all subs data
 export async function GET(req, res) {
+    console.log("Received GET request");
     // Open a new connection if there is none
     if (!db) {
         db = await open({
@@ -28,6 +29,7 @@ export async function GET(req, res) {
 // Handler for POST requests to create a new subs log
 // Accepts [{ name: string, subCount: int }]
 export async function POST(req, res) {
+    console.log("Received POST request");
     // Open a new connection if there is none
     if (!db) {
         db = await open({
@@ -36,10 +38,8 @@ export async function POST(req, res) {
         });
     }
     const rowsToAdd = await req.json();
-    // Define timestamp outside of map for consistency between entries
-    const timestamp = (new Date()).toISOString().replace("T", " ").slice(0, 19);
 
-    const valuesString = rowsToAdd.map(({ name, subCount }) => {
+    const valuesString = rowsToAdd.map(({ name, subCount, timestamp }) => {
         return `('${name}', ${subCount}, '${timestamp}')`
     }).join(", ");
 

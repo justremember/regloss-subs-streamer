@@ -1,14 +1,27 @@
+/* eslint-disable @next/next/no-img-element */
 /*
     TODO:
     - [DONE] Create POST request for sqlite api (auto datetime timestamp)
-    - POST to sqlite after youtube api query (hourly)
+    - [DONE] POST to sqlite after youtube api query (hourly)
+    - Clean up redundant data in query (not hourly data)
+    - [DONE] add "set_id" column (but maybe not, just rely on timestamp and add 5 rows at the same time manually setting timestamp)
     - Search how to plot time series data d3.js
     - Plot the GET data from db along w/ new data
     - Think of design
     - Implement design
-    - Buy digitalocean server
-    - Setup react server
+    - [DONE] Buy digitalocean server
+    - [DONE] Setup react server
     - Setup obs & obs websocket
+
+    OPTIONAL:
+    - Setup new database with the unique key being the day & hour component of
+        the timestamp along with the name
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        subcount INTEGER NOT NULL,
+        timestamp_dayhour TEXT NOT NULL,
+        timestamp_minsec TEXT,
+        UNIQUE(name, timestamp_dayhour)
 */
 
 'use client'
@@ -60,8 +73,8 @@ async function fetchSubCount(id) {
     return subscriberCount;
 }
 
-async function fetchPastData() {
-    const response = await fetch("api/", {
+async function fetchPastDataFromDb() {
+    const response = await fetch("api", {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -72,8 +85,8 @@ async function fetchPastData() {
 }
 
 // Accepts [{ name: string, subcount: int }]
-async function saveData(data) {
-    const response = await fetch("api/", {
+async function saveDataToDb(data) {
+    await fetch("api", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -83,46 +96,78 @@ async function saveData(data) {
 }
 
 export default function Display() {
-    const [data, setData] = useState();
-    const [pastData, setPastData] = useState();
+    const [pastData, setPastData] = useState(null);
+    const [currentData, setCurrentData] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            setPastData(await fetchPastData());
+        // fetch past data
+        const fetchPastData = async () => {
+            setPastData(await fetchPastDataFromDb());
         }
-        fetchData();
+        fetchPastData();
     }, []);
 
     useEffect(() => {
-        const fetchAndSaveData = async () => {
+        if (!pastData) return () => {};
+        const fetchAndSaveCurrentData = async () => {
+            // get current timestamp as a string with the same format as sqlite3 timestamps
+            const currentTimestamp = (new Date()).toISOString().replace("T", " ").slice(0, 19);
+            
+            // fetch current subcount from youtube for each member
             const newDataPromisesArray = REGLOSS.members.map(async member => {
                 const subCount = parseInt(await fetchSubCount(member.id));
-                const memberData = { ...member, subCount };
+                const memberData = { ...member, subCount, timestamp: currentTimestamp };
                 return memberData;
             });
             const newData = await Promise.all(newDataPromisesArray);
-            setData(newData);
-            const dataToSave = newData.map(row => ({ name: row.name, subCount: row.subCount }));
-            saveData(dataToSave);
-        }
-        fetchAndSaveData();
-        const id = setInterval(fetchAndSaveData, 60000);
-        return () => clearInterval(id);
-    }, []);
+            setCurrentData(newData);
+            
+            // get the timestamp of the last entry saved to db
+            const lastPastDataEntry = pastData[pastData.length - 1];
+            const lastSavedTimestamp = lastPastDataEntry.timestamp;
+            // get both the date & the hour of the timestamps to compare
+            const lastSavedDateAndHour = lastSavedTimestamp.slice(0, 13);
+            const currentDateAndHour = currentTimestamp.slice(0, 13);
+            // if the current date and hour is not the same as the last saved date & hour,
+            // (i.e. more than an hour has passed since the db was last updated)
+            // save the new data to db
+            // e.g. "2024-04-07 06" !== "2024-04-07 07"
+            if (lastSavedDateAndHour.localeCompare(currentDateAndHour) === -1) {
+                // transform current subcount data into a saveable format for sqlite3
+                const dataToSave = newData.map(row => ({
+                    name: row.name,
+                    subCount: row.subCount,
+                    timestamp: row.timestamp,
+                }));
+                // save data to sqlite3 db
+                await saveDataToDb(dataToSave);
 
-    console.log({ data });
+                // fetch data again to update it
+                setPastData(await fetchPastDataFromDb());
+            }
+        }
+
+        // run fetchAndSaveCurrentData once after loading page
+        fetchAndSaveCurrentData();
+
+        // then run fetchAndSaveCurrentData every 60 seconds
+        const id = setInterval(fetchAndSaveCurrentData, 60000);
+        return () => clearInterval(id);
+    }, [pastData]);
+
+    console.log({ currentData });
     console.log({ pastData });
 
-    const totalSubs = data?.map(m => m.subCount).reduce((a, b) => a + b, 0);
+    const totalSubs = currentData?.map(m => m.subCount).reduce((a, b) => a + b, 0);
     const subsGoal = 2500000;
 
-    return data && pastData && (
+    return currentData && pastData && (
         <div className="App">
             <div className="cards">
-                {data.map(member => (
+                {currentData.map(member => (
                     <div className="card" key={member.name}>
                         <div className="channel-image-container">
-                            <img src={`images/pfp/${member.name}.jpg`} />
+                            <img src={`images/pfp/${member.name}.jpg`} alt={`picture of ${member.name}`} />
                         </div>
                         <div className="channel-name">{member.channelNameEn}</div>
                         <div className="channel-name">{member.channelNameJp}</div>
