@@ -63,6 +63,10 @@ const REGLOSS = {
     ],
 };
 
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+}
+
 async function fetchSubCount(id) {
     const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${id}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`;
 
@@ -171,14 +175,14 @@ export default function Display() {
                         </div>
                         <div className="channel-name">{member.channelNameEn}</div>
                         <div className="channel-name">{member.channelNameJp}</div>
-                        <div className="sub-count">{member.subCount}</div>
+                        <div className="sub-count">{numberWithCommas(member.subCount)}</div>
                     </div>
                 ))}
             </div>
 
             <div className="total-subs-container">
-                <span className="total-subs-label">合計</span>
-                <span className="total-subs">{`　${totalSubs}/${subsGoal}（${Math.floor(totalSubs/subsGoal * 100)}％）`}</span>
+                <span className="total-subs-label">Total 合計</span>
+                <span className="total-subs">{`　${numberWithCommas(totalSubs)}/${numberWithCommas(subsGoal)}（${Math.floor(totalSubs/subsGoal * 100)}％）`}</span>
             </div>
         </div>
     );
