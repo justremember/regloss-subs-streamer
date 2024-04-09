@@ -5,8 +5,9 @@
     - [DONE] POST to sqlite after youtube api query (hourly)
     - [DONE] Clean up redundant data in query (not hourly data)
     - [DONE] add "set_id" column (but maybe not, just rely on timestamp and add 5 rows at the same time manually setting timestamp)
-    - Search how to plot time series data d3.js
-    - Plot the GET data from db along w/ new data
+    - [DONE] Search how to plot time series data ~~d3.js~~ chartjs
+    - [DONE] Test first if possible without an adapter
+    - [DONE] Plot the GET data from db along w/ new data
     - Think of design
     - Implement design
     - [DONE] Buy digitalocean server
@@ -36,30 +37,40 @@ const REGLOSS = {
             id: "UCtyWhCj3AqKh2dXctLkDtng",
             channelNameEn: "Ririka Ch.",
             channelNameJp: "一条莉々華",
+            color: "#ee558b",
+            colorLight: "#f47da9",
         },
         {
             name: "ao",
             id: "UCMGfV7TVTmHhEErVJg1oHBQ",
             channelNameEn: "Ao Ch.",
             channelNameJp: "火威青",
+            color: "#16264b",
+            colorLight: "#1d3467",
         },
         {
             name: "kanade",
             id: "UCWQtYtq9EOB4-I5P-3fh8lA",
             channelNameEn: "Kanade Ch.",
             channelNameJp: "音乃瀬奏",
+            color: "#f6c663",
+            colorLight: "#ffe7b5",
         },
         {
             name: "hajime",
             id: "UC1iA6_NT4mtAcIII6ygrvCw",
             channelNameEn: "Hajime Ch.",
             channelNameJp: "轟はじめ",
+            color: "#9293fe",
+            colorLight: "#b6b9ff",
         },
         {
             name: "raden",
             id: "UCdXAk5MpyLD8594lm_OvtGQ",
             channelNameEn: "Raden Ch.",
             channelNameJp: "儒烏風亭らでん",
+            color: "#1c5e4f",
+            colorLight: "#3c7c71",
         },
     ],
 };
@@ -78,6 +89,7 @@ async function fetchSubCount(id) {
     return subscriberCount;
 }
 
+// Returns [{ id: int, name: string, subcount: int, timestamp: string }]
 async function fetchPastDataFromDb() {
     const response = await fetch("api", {
         method: "GET",
@@ -89,7 +101,7 @@ async function fetchPastDataFromDb() {
     return data;
 }
 
-// Accepts [{ name: string, subcount: int }]
+// Accepts [{ name: string, subcount: int, timestamp: string }]
 async function saveDataToDb(data) {
     await fetch("api", {
         method: "POST",
@@ -167,7 +179,7 @@ export default function Display() {
     const subsGoal = 2500000;
 
     return currentData && pastData && (
-        <div className="App">
+        <div className="container">
             <div className="cards">
                 {currentData.map(member => (
                     <div className="card" key={member.name}>
@@ -186,7 +198,9 @@ export default function Display() {
                 <span className="total-subs">{`　${numberWithCommas(totalSubs)}/${numberWithCommas(subsGoal)}（${Math.floor(totalSubs/subsGoal * 100)}％）`}</span>
             </div>
 
-            <LineChart data={currentData + pastData} />
+            <div className="bottom-part">
+                <LineChart pastData={pastData} currentData={currentData} />
+            </div>
         </div>
     );
 }

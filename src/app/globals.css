@@ -4,8 +4,17 @@ html {
 
 body {
   font-family: sans-serif;
-  background: linear-gradient(to top, rgb(83, 81, 112), rgb(38, 48, 53));
   color: white;
+  margin: 0;
+  background: linear-gradient(to top, rgb(83, 81, 112), rgb(38, 48, 53));
+}
+
+.container {
+  box-sizing: border-box;
+  padding: 8px;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100vh;
 }
 
 .cards {
@@ -49,4 +58,15 @@ body {
 .total-subs {
   font-size: 30px;
   font-weight: bold;
+}
+
+.bottom-part {
+  flex: 1;
+  position: relative;
+}
+
+.chart-container {
+  position: absolute;
+  height: 100%;
+  width: calc(50% - 8px);
 }

@@ -6,6 +6,8 @@ const DisplayNoSSR = dynamic(() => import("@/app/components/Display"), {
 
 export default async function Home() {
     return (
-        <DisplayNoSSR />
+        <div className="App">
+            <DisplayNoSSR />
+        </div>
     )
 }

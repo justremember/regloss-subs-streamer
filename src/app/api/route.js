@@ -16,11 +16,11 @@ export async function GET(req, res) {
         });
     }
 
-    // Query to get all todos from the "todo" table
-    const todos = await db.all("SELECT * FROM subs");
-  
+    // Query to get all subs from the "subs" table
+    const subs = await db.all("SELECT name, subcount AS subCount, timestamp FROM subs");
+
     // Return the todos as a JSON response with a 200 status code
-    return new Response(JSON.stringify(todos), {
+    return new Response(JSON.stringify(subs), {
         headers: { "content-type": "application/json" },
         status: 200,
     });
