@@ -48,11 +48,7 @@ export default function LineChart({ pastData, currentData }) {
                 },
                 adapters: {
                     date: {
-                        locale: new Intl.Locale("ja", {
-                            region: "JP",
-                            hourCycle: "h23",
-                            calendar: "gregory",
-                        }).toString(),
+                        locale: "ja-JP-u-ca-gregory-hc-h23",
                         zone: "Asia/Tokyo",
                     },
                 },
@@ -83,7 +79,7 @@ export default function LineChart({ pastData, currentData }) {
                 label: "Total",
                 borderWidth: 1,
                 /*
-                    this data transformation function makes one assumption about the data:
+                    this data transformation makes one assumption about the data:
                     all data are in this format
                     [
                         {
@@ -94,22 +90,22 @@ export default function LineChart({ pastData, currentData }) {
                         {
                             name: "ao",
                             timestamp: "2024-04-05 00:01:00", # same timestamp
-                            subCount: "300000",
+                            subCount: "400000",
                         },
                         {
                             name: "hajime",
                             timestamp: "2024-04-05 00:01:00", # same timestamp
-                            subCount: "300000",
+                            subCount: "500000",
                         },
                         {
                             name: "kanade",
                             timestamp: "2024-04-05 00:01:00", # same timestamp
-                            subCount: "300000",
+                            subCount: "600000",
                         },
                         {
                             name: "raden",
                             timestamp: "2024-04-05 00:01:00", # same timestamp
-                            subCount: "300000",
+                            subCount: "700000",
                         },
                         {
                             name: "ririka",
@@ -121,6 +117,17 @@ export default function LineChart({ pastData, currentData }) {
                     the mems should be grouped together. order of each mem within the group doesn't matter
                     (can also be ao kanade raden ririka hajime) but each grouping per timestamp needs to
                     be together. naturally, the total number of rows is a multiple of 5 (# of mems.)
+                    this reduce function returns [
+                        {
+                            x: "2024-04-05 00:01:00",
+                            y: 20001000, # total subs for that timestamp
+                        },
+                        {
+                            x: "2024-04-05 01:00:38",
+                            y: 20002000,
+                        },
+                        etc.
+                    ]
                 */
                 data: allData.reduce((obj, row) => {
                     obj.totalSubCount += row.subCount;
