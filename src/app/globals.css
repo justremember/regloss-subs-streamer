@@ -110,3 +110,11 @@ body {
   height: 100%;
   width: calc(50% - 8px);
 }
+
+.extra-part {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: calc(50% - 8px);
+  transform: translate(0, -50%);
+}
