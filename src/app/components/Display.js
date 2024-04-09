@@ -27,6 +27,7 @@
 
 'use client'
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import LineChart from "@/app/components/LineChart"
 
@@ -39,6 +40,10 @@ const REGLOSS = {
             channelNameJp: "一条莉々華",
             color: "#ee558b",
             colorLight: "#f47da9",
+            pfp: [
+                "ririka.jpg",
+                "ririka-orig.png",
+            ],
         },
         {
             name: "ao",
@@ -47,6 +52,10 @@ const REGLOSS = {
             channelNameJp: "火威青",
             color: "#16264b",
             colorLight: "#1d3467",
+            pfp: [
+                "ao.jpg",
+                "ao-orig.png",
+            ],
         },
         {
             name: "kanade",
@@ -55,6 +64,10 @@ const REGLOSS = {
             channelNameJp: "音乃瀬奏",
             color: "#f6c663",
             colorLight: "#ffe7b5",
+            pfp: [
+                "kanade.jpg",
+                "kanade-orig.png",
+            ],
         },
         {
             name: "hajime",
@@ -63,6 +76,10 @@ const REGLOSS = {
             channelNameJp: "轟はじめ",
             color: "#9293fe",
             colorLight: "#b6b9ff",
+            pfp: [
+                "hajime.jpg",
+                "hajime-orig.png",
+            ],
         },
         {
             name: "raden",
@@ -71,6 +88,10 @@ const REGLOSS = {
             channelNameJp: "儒烏風亭らでん",
             color: "#1c5e4f",
             colorLight: "#3c7c71",
+            pfp: [
+                "raden.jpg",
+                "raden-orig.png",
+            ],
         },
     ],
 };
@@ -115,6 +136,8 @@ async function saveDataToDb(data) {
 export default function Display() {
     const [pastData, setPastData] = useState(null);
     const [currentData, setCurrentData] = useState(null);
+    const [pfpIndex, setPfpIndex] = useState(0);
+    const numPfps = 2;
 
     useEffect(() => {
         // fetch past data
@@ -172,6 +195,14 @@ export default function Display() {
         return () => clearInterval(id);
     }, [pastData]);
 
+    useEffect(() => {
+        const changePfp = () => {
+            setPfpIndex(pfpIndex => (pfpIndex + 1) % numPfps);
+        };
+        const id = setInterval(changePfp, 30000);
+        return () => clearInterval(id);
+    }, [])
+
     console.log({ currentData });
     console.log({ pastData });
 
@@ -184,7 +215,16 @@ export default function Display() {
                 {currentData.map(member => (
                     <div className="card" key={member.name}>
                         <div className="channel-image-container">
-                            <img src={`images/pfp/${member.name}.jpg`} alt={`picture of ${member.name}`} />
+                            {member.pfp.map((pfpName, i) => (
+                                <Image
+                                    src={`/images/pfp/${pfpName}`}
+                                    alt={`picture of ${member.name}`}
+                                    className={`channel-image ${i === pfpIndex ? "visible" : "invisible"} ${member.name}`}
+                                    key={pfpName}
+                                    height={200}
+                                    width={200}
+                                />
+                            ))}
                         </div>
                         <div className="channel-name">{member.channelNameEn}</div>
                         <div className="channel-name">{member.channelNameJp}</div>

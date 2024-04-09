@@ -29,8 +29,46 @@ body {
 }
 
 .channel-image-container {
-  display: flex;
-  justify-content: center;
+  width: 100%;
+  height: 200px;
+  position: relative;
+}
+
+.channel-image {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+  border-radius: 15px;
+}
+
+.channel-image.visible {
+  transition: 2s;
+  opacity: 1;
+}
+
+.channel-image.invisible {
+  transition: 2s;
+  opacity: 0;
+}
+
+.channel-image.ririka {
+  transition-delay: 0ms;
+}
+
+.channel-image.ao {
+  transition-delay: 200ms;
+}
+
+.channel-image.kanade {
+  transition-delay: 400ms;
+}
+
+.channel-image.hajime {
+  transition-delay: 600ms;
+}
+
+.channel-image.raden {
+  transition-delay: 800ms;
 }
 
 .channel-name {
@@ -67,6 +105,8 @@ body {
 
 .chart-container {
   position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
   width: calc(50% - 8px);
 }
