@@ -137,7 +137,7 @@ export default function Display() {
     const [pastData, setPastData] = useState(null);
     const [currentData, setCurrentData] = useState(null);
     const [pfpIndex, setPfpIndex] = useState(0);
-    const numPfps = 2;
+    const numPfpsPerMem = 2;
 
     useEffect(() => {
         // fetch past data
@@ -197,7 +197,7 @@ export default function Display() {
 
     useEffect(() => {
         const changePfp = () => {
-            setPfpIndex(pfpIndex => (pfpIndex + 1) % numPfps);
+            setPfpIndex(pfpIndex => (pfpIndex + 1) % numPfpsPerMem);
         };
         const id = setInterval(changePfp, 30000);
         return () => clearInterval(id);
@@ -223,6 +223,7 @@ export default function Display() {
                                     key={pfpName}
                                     height={200}
                                     width={200}
+                                    priority={true}
                                 />
                             ))}
                         </div>

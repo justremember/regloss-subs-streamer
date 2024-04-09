@@ -53,10 +53,11 @@ export default function LineChart({ pastData, currentData }) {
                     },
                 },
                 title: {
-                    display: true,
+                    display: false,
                     text: "Timestamp タイムスタンプ",
                     color: "#fff",
                 },
+                max: "2024-08-01T00:00:00Z",
             },
             y: {
                 type: "linear",
@@ -67,7 +68,7 @@ export default function LineChart({ pastData, currentData }) {
                     color: "#fff",
                 },
                 min: 2000000,
-                max: 2200000,
+                max: 2500000,
             },
         },
     };
