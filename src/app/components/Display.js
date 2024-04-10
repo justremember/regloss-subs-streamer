@@ -242,7 +242,7 @@ export default function Display() {
             <div className="bottom-part">
                 <LineChart pastData={pastData} currentData={currentData} />
                 <div className="extra-part">
-                    <img src="/images/nerissa-gyatt.gif" alt="wow"/>
+                    <img src="/images/nerissa-gyatt.gif" alt="wow" className="extra-part-img"/>
                 </div>
             </div>
         </div>

@@ -115,6 +115,11 @@ body {
   position: absolute;
   top: 50%;
   right: 0;
+  height: 100%;
   width: calc(50% - 8px);
   transform: translate(0, -50%);
+}
+
+.extra-part-img {
+  height: 100%;
 }
