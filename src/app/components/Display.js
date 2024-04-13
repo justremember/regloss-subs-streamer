@@ -12,7 +12,9 @@
     - Implement design
     - [DONE] Buy digitalocean server
     - [DONE] Setup react server
-    - Setup obs & obs websocket
+    - [DONE] Setup obs & obs websocket (possible deadend)
+    - Try setting up http server with other stream than puppeteer stream
+    - Look into source code of puppeteer-screen-recorder
 
     OPTIONAL:
     - Setup new database with the unique key being the day & hour component of
