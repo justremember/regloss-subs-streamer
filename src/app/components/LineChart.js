@@ -24,14 +24,17 @@ Chart.register(
 Chart.defaults.borderColor = "#777";
 Chart.defaults.color = "#fff";
 
-export default function LineChart({ pastData, currentData }) {
+export default function LineChart({ pastData, currentData, view, className }) {
     const allData = pastData.concat(currentData);
     const memNameList = currentData.map(mem => mem.name);
-
+    
     const options = {
         responsive: true,
         maintainAspectRatio: false,
         color: "#fff",
+        animation: {
+            duration: 2000,
+        },
         elements: {
             point: {
                 radius: 0
@@ -57,7 +60,7 @@ export default function LineChart({ pastData, currentData }) {
                     text: "Timestamp タイムスタンプ",
                     color: "#fff",
                 },
-                max: "2024-08-01T00:00:00Z",
+                max: view === 1 ? "2024-08-01T00:00:00Z" : undefined,
             },
             y: {
                 type: "linear",
@@ -68,7 +71,7 @@ export default function LineChart({ pastData, currentData }) {
                     color: "#fff",
                 },
                 min: 2000000,
-                max: 2500000,
+                max: view === 1 ? 2500000 : undefined,
             },
         },
     };
@@ -172,7 +175,7 @@ export default function LineChart({ pastData, currentData }) {
     console.log({ data });
 
     return (
-        <div className="chart-container">
+        <div className={`chart-container ${className}`}>
             <Line datasetIdKey="id" options={options} data={data} />
         </div>
     );

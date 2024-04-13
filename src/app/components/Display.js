@@ -137,7 +137,9 @@ export default function Display() {
     const [pastData, setPastData] = useState(null);
     const [currentData, setCurrentData] = useState(null);
     const [pfpIndex, setPfpIndex] = useState(0);
+    const [currentView, setCurrentView] = useState(0);
     const numPfpsPerMem = 2;
+    const numViews = 2;
 
     useEffect(() => {
         // fetch past data
@@ -203,6 +205,14 @@ export default function Display() {
         return () => clearInterval(id);
     }, [])
 
+    useEffect(() => {
+        const changeView = () => {
+            setCurrentView(pfpIndex => (pfpIndex + 1) % numViews);
+        };
+        const id = setInterval(changeView, 30000);
+        return () => clearInterval(id);
+    }, [])
+
     console.log({ currentData });
     console.log({ pastData });
 
@@ -240,8 +250,9 @@ export default function Display() {
             </div>
 
             <div className="bottom-part">
-                <LineChart pastData={pastData} currentData={currentData} />
-                <div className="extra-part">
+                <LineChart pastData={pastData} currentData={currentData} view={0} className={0 === currentView ? "visible" : "invisible"}/>
+                <LineChart pastData={pastData} currentData={currentData} view={1} className={1 === currentView ? "visible" : "invisible"}/>
+                <div className="extra-part" style={{ display: "none" }}>
                     <img src="/images/nerissa-gyatt.gif" alt="wow" className="extra-part-img"/>
                 </div>
             </div>
