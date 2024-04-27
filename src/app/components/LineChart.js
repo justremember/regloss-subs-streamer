@@ -10,6 +10,8 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
+import { DateTime } from 'luxon';
+import predict from "@/app/utils/predict";
 
 Chart.register(
     LinearScale,
@@ -28,6 +30,23 @@ export default function LineChart({ pastData, currentData, view, className }) {
     const allData = pastData.concat(currentData);
     const memNameList = currentData.map(mem => mem.name);
     
+    const allTotalSubsData = allData.reduce((obj, row) => {
+        obj.totalSubCount += row.subCount;
+        obj.members = obj.members.filter(mem => mem !== row.name);
+        if (obj.members.length === 0) {
+            obj.rows.push({
+                x: row.timestamp.replace(" ", "T") + "Z",
+                y: obj.totalSubCount,
+            });
+            obj.members = Array.from(memNameList);
+            obj.totalSubCount = 0;
+        }
+        return obj;
+    }, {rows: [], members: Array.from(memNameList), totalSubCount: 0})
+        .rows;
+
+    const predictionData = predict(allTotalSubsData);
+
     const options = {
         responsive: true,
         maintainAspectRatio: false,
@@ -60,18 +79,18 @@ export default function LineChart({ pastData, currentData, view, className }) {
                     text: "Timestamp タイムスタンプ",
                     color: "#fff",
                 },
-                max: view === 1 ? "2024-08-01T00:00:00Z" : undefined,
+                max: undefined // view === 1 ? "2024-08-01T00:00:00Z" : undefined,
             },
             y: {
                 type: "linear",
-                stacked: true,
+                // stacked: true,
                 title: {
                     display: true,
                     text: "Subs 登録者数",
                     color: "#fff",
                 },
                 min: 2000000,
-                max: view === 1 ? 2500000 : undefined,
+                max: undefined // view === 1 ? 2500000 : undefined,
             },
         },
     };
@@ -80,6 +99,24 @@ export default function LineChart({ pastData, currentData, view, className }) {
         datasets: [
             {
                 id: 1,
+                label: "Prediction",
+                borderWidth: 1,
+                data: view === 1 ? predictionData.points : [],
+                borderColor: "#fff",
+                backgroundColor: "#bbb",
+                fill: false,
+
+                elements: {
+                    point: {
+                        radius: 2
+                    },
+                    line: {
+                        tension: 0,
+                    }
+                },
+            },
+            {
+                id: 2,
                 label: "Total",
                 borderWidth: 1,
                 /*
@@ -133,24 +170,11 @@ export default function LineChart({ pastData, currentData, view, className }) {
                         etc.
                     ]
                 */
-                data: allData.reduce((obj, row) => {
-                    obj.totalSubCount += row.subCount;
-                    obj.members = obj.members.filter(mem => mem !== row.name);
-                    if (obj.members.length === 0) {
-                        obj.rows.push({
-                            x: row.timestamp.replace(" ", "T") + "Z",
-                            y: obj.totalSubCount,
-                        });
-                        obj.members = Array.from(memNameList);
-                        obj.totalSubCount = 0;
-                    }
-                    return obj;
-                }, {rows: [], members: Array.from(memNameList), totalSubCount: 0})
-                    .rows,
+                data: allTotalSubsData,
                 borderColor: "#aaa",
                 backgroundColor: "#bbb",
                 fill: true,
-            }
+            },
         ]
         /*
         datasets: Array.from(currentData).reverse().map(memData => ({
@@ -177,6 +201,11 @@ export default function LineChart({ pastData, currentData, view, className }) {
     return (
         <div className={`chart-container ${className}`}>
             <Line datasetIdKey="id" options={options} data={data} />
+            { view === 1 && (
+                <div className="prediction-label">
+                    Prediction 予測　{DateTime.fromISO(predictionData.points[1].x, {zone: "UTC"}).setZone("Asia/Tokyo").toFormat("yyyy/MM/dd hh:mm:ss")}
+                </div>
+            )}
         </div>
     );
 }
