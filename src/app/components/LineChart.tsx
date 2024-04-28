@@ -7,6 +7,7 @@ import {
     Title,
     Tooltip,
     Filler,
+    ChartOptions,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
@@ -26,10 +27,20 @@ Chart.register(
 Chart.defaults.borderColor = "#777";
 Chart.defaults.color = "#fff";
 
-export default function LineChart({ pastData, currentData, view, className }) {
+export const numViews = 2;
+export type ChartViewIndex = 0 | 1;
+
+type Props = {
+    pastData: DbSubsTableRow[],
+    currentData: CurrentMemberData[],
+    view: ChartViewIndex,
+    className: string | undefined,
+}
+
+export default function LineChart({ pastData, currentData, view, className } : Props) {
     const allData = pastData.concat(currentData);
     const memNameList = currentData.map(mem => mem.name);
-    
+
     const allTotalSubsData = allData.reduce((obj, row) => {
         obj.totalSubCount += row.subCount;
         obj.members = obj.members.filter(mem => mem !== row.name);
@@ -42,12 +53,12 @@ export default function LineChart({ pastData, currentData, view, className }) {
             obj.totalSubCount = 0;
         }
         return obj;
-    }, {rows: [], members: Array.from(memNameList), totalSubCount: 0})
+    }, {rows: [] as TimeSeriesGraphXY[], members: Array.from(memNameList), totalSubCount: 0})
         .rows;
 
     const predictionData = predict(allTotalSubsData);
 
-    const options = {
+    const options: ChartOptions<"line"> = {
         responsive: true,
         maintainAspectRatio: false,
         color: "#fff",
@@ -176,24 +187,6 @@ export default function LineChart({ pastData, currentData, view, className }) {
                 fill: true,
             },
         ]
-        /*
-        datasets: Array.from(currentData).reverse().map(memData => ({
-            id: memData.name,
-            label: memData.channelNameJp,
-            borderWidth: 1,
-            data: allData.reduce((rows, row) => {
-                if (row.name !== memData.name) return rows;
-                rows.push({
-                    x: row.timestamp.replace(" ", "T") + "Z",
-                    y: row.subCount,
-                });
-                return rows;
-            }, []),
-            borderColor: memData.color,
-            backgroundColor: memData.colorLight,
-            fill: true,
-        })),
-        */
     };
 
     console.log({ data });

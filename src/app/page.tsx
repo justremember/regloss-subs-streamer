@@ -1,6 +1,6 @@
 // import dynamic from "next/dynamic";
-import Display from "@/app/components/Display";
 import CurrentTime from "@/app/components/CurrentTime";
+import Display from "@/app/components/Display";
 
 /*
 const DisplayNoSSR = dynamic(() => import("@/app/components/Display"), {

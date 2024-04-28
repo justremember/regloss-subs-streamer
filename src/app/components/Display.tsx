@@ -25,16 +25,26 @@
         timestamp_dayhour TEXT NOT NULL,
         timestamp_minsec TEXT,
         UNIQUE(name, timestamp_dayhour)
+    - [DONE] typescript
+    - eslint
+    - take full advantage of ssr
+    - stricter type checking
+        - distinguish between two timezones
+        - immediately convert db rows to something more
+          enforceable by typescript
 */
 
-'use client'
+"use client"
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
-import LineChart from "@/app/components/LineChart"
+import LineChart, { numViews, ChartViewIndex } from "@/app/components/LineChart";
 
-const REGLOSS = {
+const numPfpsPerMem = 2;
+type PfpIndex = 0 | 1;
+
+const REGLOSS: { members: MemberStaticData[] } = {
     members: [
         {
             name: "ririka",
@@ -99,21 +109,20 @@ const REGLOSS = {
     ],
 };
 
-function numberWithCommas(x) {
+function numberWithCommas(x: number) {
     return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
 
-async function fetchSubCount(id) {
+async function fetchSubCount(id: YouTubeId) {
     const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${id}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`;
 
     const response = await fetch(url);
     const data = await response.json();
-    const subscriberCount = data.items[0].statistics.subscriberCount;
+    const subscriberCount: string = data.items[0].statistics.subscriberCount;
     console.log(data);
-    return subscriberCount;
+    return parseInt(subscriberCount);
 }
 
-// Returns [{ id: int, name: string, subcount: int, timestamp: string }]
 async function fetchPastDataFromDb() {
     const response = await fetch("api", {
         method: "GET",
@@ -121,11 +130,11 @@ async function fetchPastDataFromDb() {
             "Content-Type": "application/json",
         },
     });
-    const data = await response.json();
+    const data: DbSubsTableRow[] = await response.json();
     return data;
 }
 
-function find14dAgoSubCount(name, currentTimestamp, pastData) {
+function find14dAgoSubCount(name: MemberName, currentTimestamp: string, pastData: DbSubsTableRow[]) {
     const timestamp7dAgo = DateTime.fromFormat(
         currentTimestamp,
         "yyyy-MM-dd hh:mm:ss",
@@ -140,11 +149,11 @@ function find14dAgoSubCount(name, currentTimestamp, pastData) {
             return pastData[i].subCount;
         }
     }
-    return 1234;
+    return 0;
 }
 
 // Accepts [{ name: string, subcount: int, timestamp: string }]
-async function saveDataToDb(data) {
+async function saveDataToDb(data: DbSubsTableRow[]) {
     await fetch("api", {
         method: "POST",
         body: JSON.stringify(data),
@@ -155,12 +164,10 @@ async function saveDataToDb(data) {
 }
 
 export default function Display() {
-    const [pastData, setPastData] = useState(null);
-    const [currentData, setCurrentData] = useState(null);
-    const [pfpIndex, setPfpIndex] = useState(0);
-    const [currentView, setCurrentView] = useState(0);
-    const numPfpsPerMem = 2;
-    const numViews = 2;
+    const [pastData, setPastData] = useState<DbSubsTableRow[]>([]);
+    const [currentData, setCurrentData] = useState<CurrentMemberData[]>([]);
+    const [pfpIndex, setPfpIndex] = useState<PfpIndex>(0);
+    const [currentView, setCurrentView] = useState<ChartViewIndex>(0);
 
     useEffect(() => {
         // fetch past data
@@ -171,21 +178,21 @@ export default function Display() {
     }, []);
 
     useEffect(() => {
-        if (!pastData) return () => {};
+        if (pastData.length === 0) return () => {};
         const fetchAndSaveCurrentData = async () => {
             // get current timestamp as a string with the same format as sqlite3 timestamps
             const currentTimestamp = (new Date()).toISOString().replace("T", " ").slice(0, 19);
-            
+
             // fetch current subcount from youtube for each member
             const newDataPromisesArray = REGLOSS.members.map(async member => {
-                const subCount = parseInt(await fetchSubCount(member.id));
+                const subCount = await fetchSubCount(member.id);
                 const since14dAgo = subCount - find14dAgoSubCount(member.name, currentTimestamp, pastData);
-                const memberData = { ...member, subCount, timestamp: currentTimestamp, since14dAgo };
+                const memberData: CurrentMemberData = { ...member, subCount, timestamp: currentTimestamp, since14dAgo };
                 return memberData;
             });
             const newData = await Promise.all(newDataPromisesArray);
             setCurrentData(newData);
-            
+
             // get the timestamp of the last entry saved to db
             const lastPastDataEntry = pastData[pastData.length - 1];
             const lastSavedTimestamp = lastPastDataEntry.timestamp;
@@ -221,7 +228,7 @@ export default function Display() {
 
     useEffect(() => {
         const changePfp = () => {
-            setPfpIndex(pfpIndex => (pfpIndex + 1) % numPfpsPerMem);
+            setPfpIndex(pfpIndex => (pfpIndex + 1) % numPfpsPerMem as PfpIndex);
         };
         const id = setInterval(changePfp, 30000);
         return () => clearInterval(id);
@@ -229,7 +236,7 @@ export default function Display() {
 
     useEffect(() => {
         const changeView = () => {
-            setCurrentView(pfpIndex => (pfpIndex + 1) % numViews);
+            setCurrentView(currentView => (currentView + 1) % numViews as ChartViewIndex);
         };
         const id = setInterval(changeView, 30000);
         return () => clearInterval(id);
@@ -241,7 +248,7 @@ export default function Display() {
     const totalSubs = currentData?.map(m => m.subCount).reduce((a, b) => a + b, 0);
     const subsGoal = 2500000;
 
-    return currentData && pastData && (
+    return currentData.length > 0 && pastData.length > 0 && (
         <div className="container">
             <div className="cards">
                 {currentData.map(member => (
