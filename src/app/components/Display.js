@@ -31,6 +31,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { DateTime } from "luxon";
 import LineChart from "@/app/components/LineChart"
 
 const REGLOSS = {
@@ -124,6 +125,24 @@ async function fetchPastDataFromDb() {
     return data;
 }
 
+function find14dAgoSubCount(name, currentTimestamp, pastData) {
+    const timestamp7dAgo = DateTime.fromFormat(
+        currentTimestamp,
+        "yyyy-MM-dd hh:mm:ss",
+        { zone: "UTC" }
+    ).minus({ days: 14 })
+    .toFormat("yyyy-MM-dd hh:mm:ss");
+    console.log(timestamp7dAgo);
+    for (let i = pastData.length - 1; i >= 0; i--) {
+        if (pastData[i].name === name
+            && pastData[i].timestamp < timestamp7dAgo) {
+            console.log(pastData[i]);
+            return pastData[i].subCount;
+        }
+    }
+    return 1234;
+}
+
 // Accepts [{ name: string, subcount: int, timestamp: string }]
 async function saveDataToDb(data) {
     await fetch("api", {
@@ -160,7 +179,8 @@ export default function Display() {
             // fetch current subcount from youtube for each member
             const newDataPromisesArray = REGLOSS.members.map(async member => {
                 const subCount = parseInt(await fetchSubCount(member.id));
-                const memberData = { ...member, subCount, timestamp: currentTimestamp };
+                const since14dAgo = subCount - find14dAgoSubCount(member.name, currentTimestamp, pastData);
+                const memberData = { ...member, subCount, timestamp: currentTimestamp, since14dAgo };
                 return memberData;
             });
             const newData = await Promise.all(newDataPromisesArray);
@@ -242,6 +262,7 @@ export default function Display() {
                         <div className="channel-name">{member.channelNameEn}</div>
                         <div className="channel-name">{member.channelNameJp}</div>
                         <div className="sub-count">{numberWithCommas(member.subCount)}</div>
+                        <div className="since-14d-ago">+ {numberWithCommas(member.since14dAgo)} since 14 days ago</div>
                     </div>
                 ))}
             </div>
