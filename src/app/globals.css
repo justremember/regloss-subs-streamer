@@ -61,13 +61,56 @@ body {
   font-weight: bold;
 }
 
-.since-14d-ago {
+.since-14d-ago-container {
+  width: 100%;
   font-size: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hidden-placeholder-text {
+  visibility: hidden;
+}
+
+.since-14d-ago {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translate(0, 100%);
+  }
+  100% {
+    transform: translate(0, 0%);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    transform: translate(0, 0%);
+  }
+  100% {
+    transform: translate(0, -100%);
+  }
+}
+
+.since-14d-ago.visible {
+  animation: slideIn 0.5s ease;
+  transform: translate(0, 0%);
+}
+
+.since-14d-ago.invisible {
+  animation: slideOut 0.5s ease;
+  transform: translate(0, 100%);
 }
 
 .total-subs-container {
   display: flex;
   justify-content: center;
+  margin: 10px 0;
 }
 
 .total-subs-label {

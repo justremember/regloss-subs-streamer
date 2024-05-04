@@ -44,6 +44,9 @@ import LineChart, { numViews, ChartViewIndex } from "@/app/components/LineChart"
 const numPfpsPerMem = 2;
 type PfpIndex = 0 | 1;
 
+const numLanguages = 2;
+type LanguageIndex = 0 | 1;
+
 const REGLOSS: { members: MemberStaticData[] } = {
     members: [
         {
@@ -109,6 +112,13 @@ const REGLOSS: { members: MemberStaticData[] } = {
     ],
 };
 
+const typography = {
+    since14dAgo: [
+        "Since 14 days ago: ",
+        "過去 14 日間で ",
+    ],
+};
+
 function numberWithCommas(x: number) {
     return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -168,6 +178,7 @@ export default function Display() {
     const [currentData, setCurrentData] = useState<CurrentMemberData[]>([]);
     const [pfpIndex, setPfpIndex] = useState<PfpIndex>(0);
     const [currentView, setCurrentView] = useState<ChartViewIndex>(0);
+    const [currentLanguage, setCurrentLanguage] = useState<LanguageIndex>(0);
 
     useEffect(() => {
         // fetch past data
@@ -242,6 +253,14 @@ export default function Display() {
         return () => clearInterval(id);
     }, [])
 
+    useEffect(() => {
+        const changeLanguage = () => {
+            setCurrentLanguage(currentLanguage => (currentLanguage + 1) % numLanguages as LanguageIndex);
+        }
+        const id = setInterval(changeLanguage, 10000);
+        return () => clearInterval(id);
+    }, [])
+
     console.log({ currentData });
     console.log({ pastData });
 
@@ -269,7 +288,15 @@ export default function Display() {
                         <div className="channel-name">{member.channelNameEn}</div>
                         <div className="channel-name">{member.channelNameJp}</div>
                         <div className="sub-count">{numberWithCommas(member.subCount)}</div>
-                        <div className="since-14d-ago">+ {numberWithCommas(member.since14dAgo)} since 14 days ago</div>
+                        <div className="since-14d-ago-container">
+                            <div className="hidden-placeholder-text">hidden text here</div>
+                            <div className={`since-14d-ago ${0 === currentLanguage ? "visible" : "invisible"}`}>
+                                {typography.since14dAgo[0]}+ {numberWithCommas(member.since14dAgo)}
+                            </div>
+                            <div className={`since-14d-ago ${1 === currentLanguage ? "visible" : "invisible"}`}>
+                                {typography.since14dAgo[1]}+ {numberWithCommas(member.since14dAgo)}
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -279,7 +306,7 @@ export default function Display() {
                 <span className="total-subs">{`　${numberWithCommas(totalSubs)}/${numberWithCommas(subsGoal)}（${Math.floor(totalSubs/subsGoal * 100)}％）`}</span>
             </div>
 
-            <div className="bottom-part">
+        <div className="bottom-part">
                 <LineChart pastData={pastData} currentData={currentData} view={0} className={0 === currentView ? "visible" : "invisible"}/>
                 <LineChart pastData={pastData} currentData={currentData} view={1} className={1 === currentView ? "visible" : "invisible"}/>
                 <div className="extra-part" style={{ display: "none" }}>
