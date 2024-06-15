@@ -120,7 +120,7 @@ const typography = {
 };
 
 function numberWithCommas(x: number) {
-    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+    return x.toLocaleString("en-US");
 }
 
 async function fetchSubCount(id: YouTubeId) {
