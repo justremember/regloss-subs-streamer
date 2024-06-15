@@ -18,7 +18,7 @@ export default function Error({
                     {
                         method: "POST",
                         body: JSON.stringify({
-                            error: String(error),
+                            error: String(error) + "\nStack:\n" + error.stack,
                         }),
                     }
                 );
