@@ -12,10 +12,10 @@ ssh root@<IP_ADDRESS>
 ssh -L 3000:127.0.0.1:3000 root@<IP_ADDRESS>
 
 # Copy file from local to remote
-scp ~/LOCAL/FILE/PATH.txt root@<IP_ADDRESS>:~/REMOTE/DIR/PATH
+scp /LOCAL/FILE/PATH.txt root@<IP_ADDRESS>:/REMOTE/DIR/PATH
 
 # Copy file from remote to local
-scp root@<IP_ADDRESS>:~/REMOTE/FILE/PATH.txt ~/LOCAL/DIR/PATH
+scp root@<IP_ADDRESS>:/REMOTE/FILE/PATH.txt /LOCAL/DIR/PATH
 
 # Create screen
 screen -S <SESSION_NAME>
@@ -31,3 +31,6 @@ npm run build
 
 # Start node server
 npm run start
+
+# Create backup of collection db in local machine
+scp root@<IP_ADDRESS>:/path/to/regloss-subs-streamer/collection.db /path/to/backups/folder/collection-$(date +"%Y-%m-%dT%H:%M:%S").db

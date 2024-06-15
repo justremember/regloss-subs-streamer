@@ -1,8 +1,8 @@
-import { Noto_Sans_JP } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { PropsWithChildren } from 'react';
 
-const notoSansJP = Noto_Sans_JP({ subsets: ["latin"] });
+const myFont = localFont({ src: './NotoSansJP-VariableFont_wght.ttf' });
 
 export const metadata = {
   title: "Create Next App",
@@ -12,7 +12,7 @@ export const metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
-      <body className={`${notoSansJP.className}`}>{children}</body>
+      <body className={myFont.className}>{children}</body>
     </html>
   );
 }
